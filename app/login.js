@@ -26,6 +26,7 @@ export default function LoginScreen() {
       <Button title="Ingresar" onPress={login} />
       <Button title="¿No tienes cuenta?" onPress={() => router.push("/register")} />
       <Button title="Olvidé mi contraseña" onPress={() => router.push("/reset-password")} />
+      <Button title="invitado" onPress={() => router.push("/perfil")} />
     </View>
   );
 }
