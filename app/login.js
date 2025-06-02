@@ -24,8 +24,11 @@ export default function LoginScreen() {
       <Text>Contraseña</Text>
       <TextInput secureTextEntry value={password} onChangeText={setPassword} />
       <Button title="Ingresar" onPress={login} />
-      <Button title="¿No tienes cuenta?" onPress={() => router.push("/register")} />
-      <Button title="Olvidé mi contraseña" onPress={() => router.push("/reset-password")} />
+      <Button title="Registrarse" onPress={() => router.push("/register")} />
+      <Button
+        title="Olvidé mi contraseña"
+        onPress={() => router.push("/reset-password")}
+      />
     </View>
   );
 }
