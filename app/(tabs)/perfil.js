@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { signOut } from "firebase/auth";
 import { getDatabase, onValue, ref, update } from "firebase/database";
-import { useContext, useEffect, useState } from "react"; // ✅ IMPORTACIÓN COMPLETA
+import { useContext, useEffect, useState } from "react";
 import {
   Alert,
   ScrollView,
@@ -12,11 +12,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { AuthContext } from "../../context/AuthContext"; // ✅ Importa contexto
+import { AuthContext } from "../../context/AuthContext";
 import { auth } from "../../utils/firebase";
 
 export default function Perfil() {
-
   const { user, authLoaded } = useContext(AuthContext);
 
   const [perfil, setPerfil] = useState({
@@ -30,6 +29,14 @@ export default function Perfil() {
     estadoEquipo: '',
   });
 
+  // Redirección segura cuando no hay usuario
+  useEffect(() => {
+    if (authLoaded && !user) {
+      router.replace("/login");
+    }
+  }, [authLoaded, user]);
+
+  // Cargar datos del perfil desde Firebase
   useEffect(() => {
     const db = getDatabase();
     const uid = auth.currentUser?.uid;
@@ -54,12 +61,10 @@ export default function Perfil() {
     });
 
     return () => unsubscribe();
-  },  [authLoaded, user]);
+  }, [authLoaded, user]);
 
-  // ✅ Después de ejecutar los hooks, decidimos qué mostrar
-  if (!authLoaded) return null;
-  if (!user) {
-    router.replace("/login");
+  // Evita renderizar mientras no haya cargado Auth o user no válido
+  if (!authLoaded || !user) {
     return null;
   }
 
@@ -73,6 +78,18 @@ export default function Perfil() {
     update(userRef, perfil)
       .then(() => Alert.alert("Perfil actualizado"))
       .catch((err) => Alert.alert("Error al guardar", err.message));
+  };
+
+  const cerrarSesion = async () => {
+    try {
+      await signOut(auth);
+      // Esperar un tick para salir del ciclo de render antes de redirigir
+      setTimeout(() => {
+        router.replace("/login");
+      }, 0);
+    } catch (error) {
+      Alert.alert("Error al cerrar sesión", error.message);
+    }
   };
 
   return (
@@ -95,9 +112,7 @@ export default function Perfil() {
         <Text style={styles.buttonText}>Guardar cambios</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => {
-        signOut(auth).then(() => router.replace("/login"));
-      }}>
+      <TouchableOpacity style={styles.button} onPress={cerrarSesion}>
         <Text style={styles.buttonText}>Cerrar Sesión</Text>
       </TouchableOpacity>
     </ScrollView>
