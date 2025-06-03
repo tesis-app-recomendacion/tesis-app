@@ -1,35 +1,110 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { signOut } from "firebase/auth";
+import { getDatabase, onValue, ref, update } from "firebase/database";
+import { useContext, useEffect, useState } from "react"; // ✅ IMPORTACIÓN COMPLETA
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { AuthContext } from "../../context/AuthContext"; // ✅ Importa contexto
+import { auth } from "../../utils/firebase";
+
 export default function Perfil() {
+
+  const { user, authLoaded } = useContext(AuthContext);
+
+  const [perfil, setPerfil] = useState({
+    email: '',
+    nivelEducativo: '',
+    area: '',
+    experiencia: '',
+    estrategias: '',
+    dispositivo: '',
+    conectividad: '',
+    estadoEquipo: '',
+  });
+
+  useEffect(() => {
+    const db = getDatabase();
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+
+    const userRef = ref(db, 'users/' + uid);
+
+    const unsubscribe = onValue(userRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setPerfil({
+          email: data.email || '',
+          nivelEducativo: data.nivelEducativo || '',
+          area: data.area || '',
+          experiencia: data.experiencia || '',
+          estrategias: data.estrategias || '',
+          dispositivo: data.dispositivo || '',
+          conectividad: data.conectividad || '',
+          estadoEquipo: data.estadoEquipo || '',
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  },  [authLoaded, user]);
+
+  // ✅ Después de ejecutar los hooks, decidimos qué mostrar
+  if (!authLoaded) return null;
+  if (!user) {
+    router.replace("/login");
+    return null;
+  }
+
+  const guardarCambios = () => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+
+    const db = getDatabase();
+    const userRef = ref(db, 'users/' + uid);
+
+    update(userRef, perfil)
+      .then(() => Alert.alert("Perfil actualizado"))
+      .catch((err) => Alert.alert("Error al guardar", err.message));
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>👤 Información personal</Text>
 
-      <Input label="Correo electrónico" placeholder="usuario@email.com" icon="mail" />
-      <Input label="Contraseña" placeholder="********" icon="lock-closed" secure />
-      <Input label="Nivel educativo" placeholder="Secundaria / Universitario" icon="school" />
-      <Input label="Área de enseñanza" placeholder="Tecnología / Ciencias" icon="book" />
-      <Input label="Experiencia en robótica" placeholder="Básica / Intermedia / Avanzada" icon="construct" />
-      <Input label="Estrategias de enseñanza" placeholder="Proyectos, retos, etc." icon="bulb" />
+      <Input label="Correo electrónico" icon="mail" value={perfil.email} editable={false} />
+      <Input label="Nivel educativo" icon="school" value={perfil.nivelEducativo} onChangeText={(text) => setPerfil({ ...perfil, nivelEducativo: text })} />
+      <Input label="Área de enseñanza" icon="book" value={perfil.area} onChangeText={(text) => setPerfil({ ...perfil, area: text })} />
+      <Input label="Experiencia en robótica" icon="construct" value={perfil.experiencia} onChangeText={(text) => setPerfil({ ...perfil, experiencia: text })} />
+      <Input label="Estrategias de enseñanza" icon="bulb" value={perfil.estrategias} onChangeText={(text) => setPerfil({ ...perfil, estrategias: text })} />
 
       <Text style={styles.title}>🏫 Recursos tecnológicos disponibles</Text>
 
-      <Input label="Tipo de dispositivo disponible" placeholder="Computador / Tablet / Celular" icon="laptop" />
-      <Input label="Conectividad" placeholder="Estable / Intermitente / Sin conexión" icon="wifi" />
-      <Input label="Estado del equipo de cómputo" placeholder="Bueno / Regular / Malo" icon="hardware-chip" />
+      <Input label="Tipo de dispositivo disponible" icon="laptop" value={perfil.dispositivo} onChangeText={(text) => setPerfil({ ...perfil, dispositivo: text })} />
+      <Input label="Conectividad" icon="wifi" value={perfil.conectividad} onChangeText={(text) => setPerfil({ ...perfil, conectividad: text })} />
+      <Input label="Estado del equipo de cómputo" icon="hardware-chip" value={perfil.estadoEquipo} onChangeText={(text) => setPerfil({ ...perfil, estadoEquipo: text })} />
 
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}  onPress={() => router.push("/perfil")}>Guardar cambios</Text>
+      <TouchableOpacity style={styles.button} onPress={guardarCambios}>
+        <Text style={styles.buttonText}>Guardar cambios</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}  onPress={() => router.push("/login")}>Cerrar Sesión</Text>
+
+      <TouchableOpacity style={styles.button} onPress={() => {
+        signOut(auth).then(() => router.replace("/login"));
+      }}>
+        <Text style={styles.buttonText}>Cerrar Sesión</Text>
       </TouchableOpacity>
     </ScrollView>
   );
 }
 
-function Input({ label, placeholder, icon, secure }) {
+function Input({ label, placeholder, icon, secure, value, onChangeText, editable = true }) {
   return (
     <View style={{ marginBottom: 16 }}>
       <Text style={styles.label}>{label}</Text>
@@ -40,6 +115,9 @@ function Input({ label, placeholder, icon, secure }) {
           placeholder={placeholder}
           placeholderTextColor="#999"
           secureTextEntry={secure}
+          value={value}
+          onChangeText={onChangeText}
+          editable={editable}
         />
       </View>
     </View>

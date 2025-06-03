@@ -1,37 +1,53 @@
-import { Ionicons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+// app/(tabs)/_layout.js
+import { Ionicons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
+import { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 
-export default function Layout() {
-  
+export default function TabLayout() {
+  const { user } = useContext(AuthContext);
+
   return (
-    
     <Tabs>
       <Tabs.Screen
-        name="recomendaciones"
+        name="recomendador"
         options={{
-          title: 'Recomendaciones',
-          tabBarIcon: ({ color, size }) => <Ionicons name="bulb-outline" size={size} color={color} />,
+          title: "Recomendador",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="bulb-outline" size={size} color={color} />
+          ),
         }}
       />
-      <Tabs.Screen
-        name="perfil"
-        options={{
-          title: 'Mi perfil',
-          tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="miList"
+
+      {user && (
+        <Tabs.Screen
+          name="perfil"
+          options={{
+            title: "Mi cuenta",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="person-outline" size={size} color={color} />
+            ),
+          }}
+        />
+      )}
+
+      {user && (
+        <Tabs.Screen
+          name="miList"
         options={{
           title: 'Mi Lista',
           tabBarIcon: ({ color, size }) => <Ionicons name="apps-outline" size={size} color={color} />,
         }}
-         />
-        <Tabs.Screen
+        />
+      )}
+
+      <Tabs.Screen
         name="colaboration"
         options={{
-          title: 'Colaborar',
-          tabBarIcon: ({ color, size }) => <Ionicons name="clipboard-outline" size={size} color={color} />,
+          title: "Colaborar",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="clipboard-outline" size={size} color={color} />
+          ),
         }}
       />
     </Tabs>

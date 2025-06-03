@@ -45,7 +45,7 @@ export default function RegisterScreen() {
       />
 
       <Button title="Registrarse" onPress={handleRegister} />
-      <Button title="Ya tengo cuenta" onPress={() => router.replace("/home")} />
+      <Button title="Ya tengo cuenta" onPress={() => router.replace("/login")} />
     </View>
   );
 }
