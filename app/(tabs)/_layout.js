@@ -2,12 +2,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { useContext } from "react";
+import { Provider as PaperProvider } from 'react-native-paper';
 import { AuthContext } from "../../context/AuthContext";
 
 export default function TabLayout() {
   const { user } = useContext(AuthContext);
 
   return (
+    <PaperProvider>
     <Tabs>
       <Tabs.Screen
         name="recomendador"
@@ -33,7 +35,7 @@ export default function TabLayout() {
 
       {user && (
         <Tabs.Screen
-          name="miList"
+          name="favorite"
         options={{
           title: 'Mi Lista',
           tabBarIcon: ({ color, size }) => <Ionicons name="apps-outline" size={size} color={color} />,
@@ -51,5 +53,6 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+    </PaperProvider>
   );
 }
