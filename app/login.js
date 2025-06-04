@@ -1,8 +1,10 @@
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
-import { Alert, Button, Text, TextInput, View } from "react-native";
+import { Image, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { auth } from "../utils/firebase";
+import styles from "./styles/loginStyles";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -11,24 +13,90 @@ export default function LoginScreen() {
   const login = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.replace("/recomendador"); // Redirige al motor si login exitoso
+      router.replace("/recomendador");
     } catch (err) {
-      Alert.alert("Error", err.message);
+      alert("Error: " + err.message);
     }
   };
 
   return (
-    <View style={{ padding: 20 }}>
-      <Text>Email</Text>
-      <TextInput value={email} onChangeText={setEmail} />
-      <Text>Contraseña</Text>
-      <TextInput secureTextEntry value={password} onChangeText={setPassword} />
-      <Button title="Ingresar" onPress={login} />
-      <Button title="Registrarse" onPress={() => router.push("/register")} />
-      <Button
-        title="Olvidé mi contraseña"
-        onPress={() => router.push("/reset-password")}
+    <View style={styles.container}>
+      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <Ionicons name="arrow-back" size={24} color="black" />
+      </TouchableOpacity>
+
+      <Image
+        source={require("../assets/icono_recombot.png")}
+        style={styles.logo}
       />
+      <Text style={styles.title}>INICIO SESION</Text>
+
+      <View style={styles.inputContainer}>
+        <Ionicons
+          name="mail-outline"
+          size={20}
+          color="gray"
+          style={styles.icon}
+        />
+        <TextInput
+          placeholder="Correo Electrónico"
+          value={email}
+          onChangeText={setEmail}
+          style={styles.input}
+          keyboardType="email-address"
+        />
+        {email ? (
+          <Ionicons
+            name="close-circle"
+            size={20}
+            color="gray"
+            style={styles.iconRight}
+            onPress={() => setEmail("")}
+          />
+        ) : null}
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Ionicons
+          name="lock-closed-outline"
+          size={20}
+          color="gray"
+          style={styles.icon}
+        />
+        <TextInput
+          placeholder="Contraseña"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          style={styles.input}
+        />
+        {password ? (
+          <Ionicons
+            name="close-circle"
+            size={20}
+            color="gray"
+            style={styles.iconRight}
+            onPress={() => setPassword("")}
+          />
+        ) : null}
+      </View>
+
+      <TouchableOpacity style={styles.loginButton} onPress={login}>
+        <Text style={styles.loginText}>Iniciar Sesión</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.registerButton}
+        onPress={() => router.push("/register")}
+      >
+        <Text style={styles.registerText}>Registrarse</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => router.push("/reset-password")}>
+        <Text style={{ marginTop: 8, color: "#4A148C", fontWeight: "bold" }}>
+          Olvidé mi contraseña
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
