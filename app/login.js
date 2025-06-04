@@ -29,7 +29,7 @@ export default function LoginScreen() {
         source={require("../assets/icono_recombot.png")}
         style={styles.logo}
       />
-      <Text style={styles.title}>INICIO SESION</Text>
+      <Text style={styles.title}>RECOMBOT</Text>
 
       <View style={styles.inputContainer}>
         <Ionicons
