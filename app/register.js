@@ -20,12 +20,13 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const [nivelEducativo, setNivelEducativo] = useState("");
-  const [area, setArea] = useState("");
-  const [dispositivo, setDispositivo] = useState("");
   const [conectividad, setConectividad] = useState("");
   const [experiencia, setExperiencia] = useState("");
-  const [estrategias, setEstrategias] = useState("");
   const [estadoEquipo, setEstadoEquipo] = useState("");
+
+  const [areas, setAreas] = useState([]);
+  const [dispositivos, setDispositivos] = useState([]);
+  const [estrategias, setEstrategias] = useState([]);
 
   const handleRegister = async () => {
     if (
@@ -33,12 +34,12 @@ export default function RegisterScreen() {
       !password ||
       !confirmPassword ||
       !nivelEducativo ||
-      !area ||
-      !dispositivo ||
       !conectividad ||
       !experiencia ||
-      !estrategias ||
-      !estadoEquipo
+      !estadoEquipo ||
+      areas.length === 0 ||
+      dispositivos.length === 0 ||
+      estrategias.length === 0
     ) {
       Alert.alert("Error", "Por favor completa todos los campos.");
       return;
@@ -56,21 +57,25 @@ export default function RegisterScreen() {
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const uid = userCredential.user.uid;
 
       const db = getDatabase();
-      const userRef = ref(db, 'users/' + uid);
+      const userRef = ref(db, "users/" + uid);
 
       await set(userRef, {
         email,
         nivelEducativo,
-        area,
-        dispositivo,
         conectividad,
         experiencia,
+        estadoEquipo,
+        area: areas,
+        dispositivo: dispositivos,
         estrategias,
-        estadoEquipo
       });
 
       Alert.alert("Éxito", "Cuenta creada correctamente");
@@ -82,7 +87,7 @@ export default function RegisterScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text>Correo electrónico</Text>
+      <Text style={styles.label}>Correo electrónico</Text>
       <TextInput
         value={email}
         onChangeText={setEmail}
@@ -90,7 +95,7 @@ export default function RegisterScreen() {
         style={styles.input}
       />
 
-      <Text>Contraseña</Text>
+      <Text style={styles.label}>Contraseña</Text>
       <TextInput
         value={password}
         onChangeText={setPassword}
@@ -98,7 +103,7 @@ export default function RegisterScreen() {
         style={styles.input}
       />
 
-      <Text>Confirmar contraseña</Text>
+      <Text style={styles.label}>Confirmar contraseña</Text>
       <TextInput
         value={confirmPassword}
         onChangeText={setConfirmPassword}
@@ -106,57 +111,38 @@ export default function RegisterScreen() {
         style={styles.input}
       />
 
-      <Text>Nivel educativo</Text>
+      <Text style={styles.label}>Nivel educativo</Text>
       <View style={styles.pickerContainer}>
         <Picker
           selectedValue={nivelEducativo}
           onValueChange={setNivelEducativo}
           style={styles.picker}
         >
-          <Picker.Item label="Seleccione una opción" value="" color="#999" style={{ fontSize: 13 }} />
+          <Picker.Item
+            label="Seleccione una opción"
+            value=""
+            color="#999"
+            style={{ fontSize: 13 }}
+          />
           <Picker.Item label="Básica Primaria" value="primaria" />
           <Picker.Item label="Secundaria" value="secundaria" />
           <Picker.Item label="Media" value="media" />
         </Picker>
       </View>
 
-      <Text>Área de enseñanza</Text>
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={area}
-          onValueChange={setArea}
-          style={styles.picker}
-        >
-          <Picker.Item label="Seleccione una opción" value="" color="#999" style={{ fontSize: 13 }} />
-          <Picker.Item label="Geometría" value="geometria" />
-          <Picker.Item label="Álgebra" value="algebra" />
-          <Picker.Item label="Estadística" value="estadistica" />
-          <Picker.Item label="Trigonometría" value="trigonometria" />
-        </Picker>
-      </View>
-
-      <Text>Tipo de dispositivo disponible</Text>
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={dispositivo}
-          onValueChange={setDispositivo}
-          style={styles.picker}
-        >
-          <Picker.Item label="Seleccione una opción" value="" color="#999" style={{ fontSize: 13 }} />
-          <Picker.Item label="PC" value="pc" />
-          <Picker.Item label="Tablet" value="tablet" />
-          <Picker.Item label="Celular" value="celular" />
-        </Picker>
-      </View>
-
-      <Text>Conectividad</Text>
+      <Text style={styles.label}>Conectividad</Text>
       <View style={styles.pickerContainer}>
         <Picker
           selectedValue={conectividad}
           onValueChange={setConectividad}
           style={styles.picker}
         >
-          <Picker.Item label="Seleccione una opción" value="" color="#999" style={{ fontSize: 13 }} />
+          <Picker.Item
+            label="Seleccione una opción"
+            value=""
+            color="#999"
+            style={{ fontSize: 13 }}
+          />
           <Picker.Item label="Alta" value="alta" />
           <Picker.Item label="Media" value="media" />
           <Picker.Item label="Baja" value="baja" />
@@ -164,43 +150,38 @@ export default function RegisterScreen() {
         </Picker>
       </View>
 
-      <Text>Experiencia en robótica</Text>
+      <Text style={styles.label}>Experiencia en robótica</Text>
       <View style={styles.pickerContainer}>
         <Picker
           selectedValue={experiencia}
           onValueChange={setExperiencia}
           style={styles.picker}
         >
-          <Picker.Item label="Seleccione una opción" value="" color="#999" style={{ fontSize: 13 }} />
+          <Picker.Item
+            label="Seleccione una opción"
+            value=""
+            color="#999"
+            style={{ fontSize: 13 }}
+          />
           <Picker.Item label="Básica" value="basica" />
           <Picker.Item label="Intermedia" value="intermedia" />
           <Picker.Item label="Avanzada" value="avanzada" />
         </Picker>
       </View>
 
-      <Text>Estrategias de enseñanza</Text>
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={estrategias}
-          onValueChange={setEstrategias}
-          style={styles.picker}
-        >
-          <Picker.Item label="Seleccione una opción" value="" color="#999" style={{ fontSize: 13 }} />
-          <Picker.Item label="Aprendizaje activo" value="activo" />
-          <Picker.Item label="Aprendizaje colaborativo" value="colaborativo" />
-          <Picker.Item label="Gamificación" value="gamificacion" />
-          <Picker.Item label="Aprendizaje basado en problemas" value="problemas" />
-        </Picker>
-      </View>
-
-      <Text>Disponibilidad y estado del equipo</Text>
+      <Text style={styles.label}>Disponibilidad y estado del equipo</Text>
       <View style={styles.pickerContainer}>
         <Picker
           selectedValue={estadoEquipo}
           onValueChange={setEstadoEquipo}
           style={styles.picker}
         >
-          <Picker.Item label="Seleccione una opción" value="" color="#999" style={{ fontSize: 13 }} />
+          <Picker.Item
+            label="Seleccione una opción"
+            value=""
+            color="#999"
+            style={{ fontSize: 13 }}
+          />
           <Picker.Item label="No disponible" value="no" />
           <Picker.Item label="Bajo" value="bajo" />
           <Picker.Item label="Medio" value="medio" />
@@ -208,12 +189,95 @@ export default function RegisterScreen() {
         </Picker>
       </View>
 
+      <Text style={styles.label}>Área de enseñanza</Text>
+      <View style={styles.checkboxGroup}>
+        {["Geometría", "Álgebra", "Estadística", "Trigonometría"].map(
+          (item) => (
+            <TouchableOpacity
+              key={item}
+              onPress={() =>
+                setAreas((prev) =>
+                  prev.includes(item)
+                    ? prev.filter((i) => i !== item)
+                    : [...prev, item]
+                )
+              }
+              style={styles.checkboxItem}
+            >
+              <Text
+                style={{ color: areas.includes(item) ? "#4A148C" : "#000" }}
+              >
+                {areas.includes(item) ? "☑" : "☐"} {item}
+              </Text>
+            </TouchableOpacity>
+          )
+        )}
+      </View>
+
+      <Text style={styles.label}>Tipo de dispositivo disponible</Text>
+      <View style={styles.checkboxGroup}>
+        {["PC", "Tablet", "Celular"].map((item) => (
+          <TouchableOpacity
+            key={item}
+            onPress={() =>
+              setDispositivos((prev) =>
+                prev.includes(item)
+                  ? prev.filter((i) => i !== item)
+                  : [...prev, item]
+              )
+            }
+            style={styles.checkboxItem}
+          >
+            <Text
+              style={{
+                color: dispositivos.includes(item) ? "#4A148C" : "#000",
+              }}
+            >
+              {dispositivos.includes(item) ? "☑" : "☐"} {item}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <Text style={styles.label}>Estrategias de enseñanza</Text>
+      <View style={styles.checkboxGroup}>
+        {[
+          "Aprendizaje activo",
+          "Aprendizaje colaborativo",
+          "Gamificación",
+          "Aprendizaje basado en problemas",
+        ].map((item) => (
+          <TouchableOpacity
+            key={item}
+            onPress={() =>
+              setEstrategias((prev) =>
+                prev.includes(item)
+                  ? prev.filter((i) => i !== item)
+                  : [...prev, item]
+              )
+            }
+            style={styles.checkboxItem}
+          >
+            <Text
+              style={{ color: estrategias.includes(item) ? "#4A148C" : "#000" }}
+            >
+              {estrategias.includes(item) ? "☑" : "☐"} {item}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
       <TouchableOpacity style={styles.button} onPress={handleRegister}>
         <Text style={styles.buttonText}>Registrarse</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={{ alignItems: 'center', marginTop: 12 ,paddingBottom:30 }} onPress={() => router.replace("/login")}>
-        <Text style={{ color: '#4A148C', fontWeight: "bold" }}>Ya tengo cuenta</Text>
+      <TouchableOpacity
+        style={{ alignItems: "center", marginTop: 12, paddingBottom: 30 }}
+        onPress={() => router.replace("/login")}
+      >
+        <Text style={{ color: "#4A148C", fontWeight: "bold" }}>
+          Ya tengo cuenta
+        </Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -223,53 +287,49 @@ const styles = StyleSheet.create({
   container: {
     paddingVertical: 40,
     paddingHorizontal: 20,
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    marginTop: 20,
-    color: '#333',
+    backgroundColor: "#fff",
   },
   label: {
-    fontSize: 14,
-    marginBottom: 4,
-    color: '#444',
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#4A148C",
+    marginBottom: 6,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 10,
     paddingHorizontal: 10,
     height: 60,
-    color: '#000',
+    color: "#000",
     marginBottom: 16,
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: "#ddd",
     borderRadius: 10,
-    marginBottom: 16,
-    overflow: 'hidden',
+    marginBottom: 20,
+    overflow: "hidden",
   },
   picker: {
     height: 60,
-    color: '#000',
-  },
-  pickerItem: {
-    fontSize: 14,
-    height: 60,
+    color: "#000",
   },
   button: {
     marginTop: 30,
-    backgroundColor: '#7e57c2',
+    backgroundColor: "#7e57c2",
     paddingVertical: 14,
     borderRadius: 25,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  checkboxGroup: {
+    marginBottom: 24,
+  },
+  checkboxItem: {
+    paddingVertical: 6,
   },
 });
